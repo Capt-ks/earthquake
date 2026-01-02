@@ -79,7 +79,7 @@ jobs:
                   t = datetime.fromtimestamp(q["time"] / 1000, tz=timezone.utc)
                   time_str = t.strftime("%b %d, %Y %H:%M UTC")
                   line = f"{label}: M{q['mag']:.1f} – {q['place']} – Depth {int(q['depth'])} km – {time_str}"
-                  quake_lines_raw.extend(textwrap.wrap(line, width=42))
+                  quake_lines_raw.extend(textwrap.wrap(line, width=40))
                   quake_lines_raw.append("")
 
           if len(quake_lines_raw) == 1:
@@ -123,11 +123,11 @@ jobs:
           draw.text((230, 155), "Near Puerto Rico (M3.5+)", fill=TEXT, font=font_sub, anchor="mm")
 
           draw.multiline_text(
-              (40, 200),
+              (40, 230),
               quake_text,
               fill=TEXT,
               font=font_body,
-              spacing=5
+              spacing=4
           )
 
           LAT_MIN, LAT_MAX = 16.5, 19.5
@@ -160,7 +160,7 @@ jobs:
           card.paste(bordered, (460, 40))
 
           footer = "USGS Earthquake Data | RabirubiaWeather.com | Updated every 4 hours"
-          draw.text((400, 420), footer, fill=TEXT, font=font_footer, anchor="mm")
+          draw.text((400, 430), footer, fill=TEXT, font=font_footer, anchor="mm")
 
           card.save("earthquake_card.png", optimize=True)
           EOF
