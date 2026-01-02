@@ -147,23 +147,23 @@ jobs:
           except:
               base_map = Image.new("RGB", (1200, 666), "#d9e3ec")
 
-          map_img = base_map.resize((380, 280))
+          map_img = base_map.resize((360, 260))
           map_draw = ImageDraw.Draw(map_img)
 
           for q in quakes:
-              x, y = map_coords(q["lat"], q["lon"], 380, 280)
+              x, y = map_coords(q["lat"], q["lon"], 360, 260)
               map_draw.ellipse((x-6, y-6, x+6, y+6), fill="red")
 
-          bordered = Image.new("RGB", (384, 284), "white")
+          bordered = Image.new("RGB", (364, 264), "white")
           bordered.paste(map_img, (2, 2))
 
           text_height = 240 + len(quake_lines_raw) * 24
-          map_y = max(text_height + 20, 440)
+          map_y = min(max(text_height + 20, 400), 700 - 264 - 40)
 
-          card.paste(bordered, (158, map_y))
+          card.paste(bordered, (168, map_y))
 
           footer = "USGS Earthquake Data | RabirubiaWeather.com | Updated every 4 hours"
-          draw.text((350, 670), footer, fill=TEXT, font=font_footer, anchor="mm")
+          draw.text((350, 680), footer, fill=TEXT, font=font_footer, anchor="mm")
 
           card.save("earthquake_card.png", optimize=True)
           EOF
