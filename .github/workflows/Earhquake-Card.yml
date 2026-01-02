@@ -29,7 +29,7 @@ jobs:
           python3 << 'EOF'
           import requests
           from PIL import Image, ImageDraw, ImageFont
-          from datetime import datetime, timezone
+          from datetime import datetime, timezone, timedelta
           import io, textwrap
 
           FEED = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
@@ -69,6 +69,8 @@ jobs:
 
           quake_lines_raw = []
 
+          AST = timezone(timedelta(hours=-4))
+
           if not quakes:
               quake_lines_raw = ["No recent earthquakes ≥ 3.5 detected."]
           else:
@@ -76,8 +78,8 @@ jobs:
               for q in quakes:
                   label = "Currently" if first else "Recent"
                   first = False
-                  t = datetime.fromtimestamp(q["time"] / 1000, tz=timezone.utc)
-                  time_str = t.strftime("%b %d, %Y %H:%M UTC")
+                  t = datetime.fromtimestamp(q["time"] / 1000, tz=timezone.utc).astimezone(AST)
+                  time_str = t.strftime("%b %d, %Y %H:%M AST")
                   line = f"{label}: M{q['mag']:.1f} – {q['place']} – Depth {int(q['depth'])} km – {time_str}"
                   quake_lines_raw.extend(textwrap.wrap(line, width=40))
                   quake_lines_raw.append("")
@@ -88,7 +90,7 @@ jobs:
 
           quake_text = "\n".join(quake_lines_raw)
 
-          card = Image.new("RGB", (800, 500), "#f2f6fa")
+          card = Image.new("RGB", (800, 540), "#f2f6fa")
           draw = ImageDraw.Draw(card)
 
           try:
@@ -113,8 +115,9 @@ jobs:
 
           TEXT = "#0a1a2f"
 
-          today_str = datetime.now(timezone.utc).strftime("%b %d, %Y")
-          updated_str = datetime.now(timezone.utc).strftime("Updated %H:%M UTC")
+          now_ast = datetime.now(timezone.utc).astimezone(AST)
+          today_str = now_ast.strftime("%b %d, %Y")
+          updated_str = now_ast.strftime("Updated %H:%M AST")
 
           draw.text((160, 40), today_str, fill=TEXT, font=font_title)
           draw.text((160, 75), updated_str, fill="#4a5a6a", font=font_body)
@@ -123,7 +126,7 @@ jobs:
           draw.text((230, 155), "Near Puerto Rico (M3.5+)", fill=TEXT, font=font_sub, anchor="mm")
 
           draw.multiline_text(
-              (40, 250),
+              (40, 270),
               quake_text,
               fill=TEXT,
               font=font_body,
@@ -160,7 +163,7 @@ jobs:
           card.paste(bordered, (460, 40))
 
           footer = "USGS Earthquake Data | RabirubiaWeather.com | Updated every 4 hours"
-          draw.text((400, 480), footer, fill=TEXT, font=font_footer, anchor="mm")
+          draw.text((400, 510), footer, fill=TEXT, font=font_footer, anchor="mm")
 
           card.save("earthquake_card.png", optimize=True)
           EOF
